@@ -3,39 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PO Data Form</title>
+  <title>Supplier PO Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    body { font-family: Arial; padding: 20px; }
-    form { margin-bottom: 20px; }
-    input, button { margin: 5px; padding: 5px; }
-    table, th, td { border: 1px solid #999; border-collapse: collapse; padding: 8px; }
-    th { background-color: #f0f0f0; }
-    .pending { background-color: #ffcccb; }
-    .fulfilled { background-color: #d4f3d4; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f7f9fc;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-bottom: 30px;
+    }
+
+    input, button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f1f1f1;
+      cursor: pointer;
+    }
+
+    .pending {
+      background-color: #ffe5e5;
+    }
+
+    .fulfilled {
+      background-color: #e0ffe0;
+    }
+
+    @media (max-width: 768px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
+
   <h2>Supplier PO Entry</h2>
+
   <form id="poForm">
-    <input type="date" name="poDate" placeholder="PO Date" required />
+    <input type="date" name="poDate" required />
     <input type="text" name="supname" placeholder="Supplier Name" required />
     <input type="text" name="itemNo" placeholder="Item No." required />
     <input type="text" name="itemName" placeholder="Item Name" required />
-    <input type="number" name="poQty" placeholder="PO Qty" required />
-    <input type="number" name="pendingQty" placeholder="Pending PO Qty" required />
+    <input type="number" name="poQty" placeholder="PO Qty" required min="1" />
+    <input type="number" name="pendingQty" placeholder="Pending PO Qty" required min="0" />
     <input type="text" name="refPONo" placeholder="Ref. PO No." required />
     <button type="submit">Submit</button>
   </form>
 
-  <h3>Previous PO Data</h3>
-  <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchTable()">
-  <br><br>
-  <input type="date" id="startDate">
-  <input type="date" id="endDate">
-  <button onclick="filterByDate()">Filter by Date</button>
-  <button onclick="exportToExcel()">Export to Excel</button>
-  <button onclick="exportToPDF()">Export to PDF</button>
-  
+  <h3>PO Records</h3>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchTable()">
+    <input type="date" id="startDate">
+    <input type="date" id="endDate">
+    <button onclick="filterByDate()">Filter by Date</button>
+    <button onclick="exportToExcel()">Export to Excel</button>
+    <button onclick="exportToPDF()">Export to PDF</button>
+  </div>
+
   <table id="poTable">
     <thead>
       <tr>
@@ -46,17 +129,18 @@
         <th onclick="sortTable(4)">PO Qty</th>
         <th onclick="sortTable(5)">Pending Qty</th>
         <th onclick="sortTable(6)">Ref. PO No.</th>
-        <th>Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
+  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzGCf5gLwpfPcRzvDotLarmWgQpr9DxlpadDi7q5hN-i9mONWmH6k4oSZwFNwAFTIOi/exec'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzGCf5gLwpfPcRzvDotLarmWgQpr9DxlpadDi7q5hN-i9mONWmH6k4oSZwFNwAFTIOi/exec';
 
     document.getElementById('poForm').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -72,154 +156,102 @@
         refPONo: form.refPONo.value
       };
 
-      const response = await fetch(scriptURL, {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
+      try {
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
 
-      if (response.ok) {
-        alert('Data submitted!');
-        form.reset();
-        loadTable();
-      } else {
-        alert('Error submitting data.');
+        if (response.ok) {
+          alert('Data submitted!');
+          form.reset();
+          loadTable();
+        } else {
+          alert('Submission failed.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network error.');
       }
     });
 
     async function loadTable() {
-      const res = await fetch(scriptURL);
-      const data = await res.json();
+      try {
+        const res = await fetch(scriptURL);
+        const data = await res.json();
+        const tbody = document.querySelector('#poTable tbody');
+        tbody.innerHTML = '';
 
-      const tbody = document.querySelector('#poTable tbody');
-      tbody.innerHTML = '';
-
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${row.poDate}</td>
-          <td>${row.supname}</td>
-          <td>${row.itemNo}</td>
-          <td>${row.itemName}</td>
-          <td>${row.poQty}</td>
-          <td>${row.pendingQty}</td>
-          <td>${row.refPONo}</td>
-          <td>
-            <button onclick="editRow(this)">Edit</button>
-            <button onclick="deleteRow(this)">Delete</button>
-          </td>
-        `;
-        addRowActions(tr, row); // Add actions like edit/delete to each row
-        tbody.appendChild(tr);
-      });
-      
-      highlightOrders(); // Highlight pending vs fulfilled orders
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.poDate}</td>
+            <td>${row.supname}</td>
+            <td>${row.itemNo}</td>
+            <td>${row.itemName}</td>
+            <td>${row.poQty}</td>
+            <td>${row.pendingQty}</td>
+            <td>${row.refPONo}</td>
+          `;
+          if (parseInt(row.pendingQty) > 0) {
+            tr.classList.add('pending');
+          } else {
+            tr.classList.add('fulfilled');
+          }
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Load failed:', err);
+      }
     }
 
-    function highlightOrders() {
-      const rows = document.querySelectorAll('#poTable tbody tr');
-      rows.forEach(row => {
-        const pendingQty = parseInt(row.cells[5].textContent);
-        if (pendingQty > 0) {
-          row.classList.add('pending');
-        } else {
-          row.classList.add('fulfilled');
-        }
-      });
-    }
-
-    function addRowActions(row, data) {
-      const editButton = row.querySelector('button:nth-child(1)');
-      const deleteButton = row.querySelector('button:nth-child(2)');
-
-      editButton.onclick = () => editRow(data);
-      deleteButton.onclick = () => deleteRow(row);
-    }
-
-    function editRow(data) {
-      const form = document.getElementById('poForm');
-      form.poDate.value = data.poDate;
-      form.supname.value = data.supname;
-      form.itemNo.value = data.itemNo;
-      form.itemName.value = data.itemName;
-      form.poQty.value = data.poQty;
-      form.pendingQty.value = data.pendingQty;
-      form.refPONo.value = data.refPONo;
-    }
-
-    function deleteRow(row) {
-      row.remove();
-    }
-
-    function sortTable(n) {
+    function sortTable(col) {
       const table = document.getElementById("poTable");
-      const rows = Array.from(table.rows).slice(1); 
-
-      const sortedRows = rows.sort((rowA, rowB) => {
-        const cellA = rowA.cells[n].textContent.trim();
-        const cellB = rowB.cells[n].textContent.trim();
-        
-        return cellA > cellB ? 1 : cellA < cellB ? -1 : 0;
-      });
-
-      sortedRows.forEach(row => table.appendChild(row));
+      const rows = Array.from(table.rows).slice(1);
+      const sorted = rows.sort((a, b) =>
+        a.cells[col].innerText.localeCompare(b.cells[col].innerText)
+      );
+      sorted.forEach(row => table.appendChild(row));
     }
 
     function searchTable() {
-      const searchValue = document.getElementById('searchInput').value.toLowerCase();
+      const val = document.getElementById('searchInput').value.toLowerCase();
       const rows = document.querySelectorAll('#poTable tbody tr');
-
       rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let match = false;
-        cells.forEach(cell => {
-          if (cell.textContent.toLowerCase().includes(searchValue)) {
-            match = true;
-          }
-        });
-        row.style.display = match ? '' : 'none';
+        row.style.display = Array.from(row.cells).some(
+          cell => cell.textContent.toLowerCase().includes(val)
+        ) ? '' : 'none';
       });
     }
 
     function filterByDate() {
-      const startDate = new Date(document.getElementById('startDate').value);
-      const endDate = new Date(document.getElementById('endDate').value);
-
+      const start = new Date(document.getElementById('startDate').value);
+      const end = new Date(document.getElementById('endDate').value);
       const rows = document.querySelectorAll('#poTable tbody tr');
       rows.forEach(row => {
-        const poDate = new Date(row.cells[0].textContent);
-        if (poDate >= startDate && poDate <= endDate) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
+        const date = new Date(row.cells[0].textContent);
+        row.style.display = (!isNaN(start) && !isNaN(end) && (date < start || date > end)) ? 'none' : '';
       });
     }
 
     function exportToExcel() {
-      const table = document.getElementById('poTable');
-      const wb = XLSX.utils.table_to_book(table, { sheet: "PO Data" });
-      XLSX.writeFile(wb, 'PO_Data.xlsx');
+      const wb = XLSX.utils.table_to_book(document.getElementById('poTable'), { sheet: "PO Data" });
+      XLSX.writeFile(wb, "PO_Data.xlsx");
     }
 
     function exportToPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
-      const table = document.getElementById('poTable');
-      let rows = [];
-      table.querySelectorAll('tr').forEach((tr) => {
+      const rows = [];
+      document.querySelectorAll('#poTable tr').forEach(tr => {
         rows.push(Array.from(tr.querySelectorAll('td, th')).map(td => td.textContent));
       });
-      
-      doc.autoTable({
-        head: [rows[0]], 
-        body: rows.slice(1)
-      });
-
-      doc.save('PO_Data.pdf');
+      doc.autoTable({ head: [rows[0]], body: rows.slice(1) });
+      doc.save("PO_Data.pdf");
     }
 
-    loadTable(); // Load table when page loads
+    loadTable();
   </script>
+
 </body>
 </html>
