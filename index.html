@@ -31,30 +31,86 @@
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       margin-bottom: 30px;
     }
+.form-group {
+  margin-bottom: 15px;
+}
 
-    input, button {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
 
-    button {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
 
-    button:hover {
-      background-color: #0056b3;
-    }
+button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  width:120px;
+  height:50px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;  
+}
 
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+button:hover {
+  background-color: #0056b3;
+}
+
+   .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  flex: 1;
+}
+
+.control-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.control-group input,
+.control-group button {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.control-group button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 1px;
+  width:150px;
+  height:40px;
+}
+
+.control-group button:hover {
+  background-color: #0056b3;
+}
+
 
     table {
       width: 100%;
@@ -82,6 +138,12 @@
       background-color: #e0ffe0;
     }
 
+    .overdue {
+      background-color: #fff3cd !important;
+      color: #856404;
+      font-weight: bold;
+    }
+
     @media (max-width: 768px) {
       form {
         grid-template-columns: 1fr;
@@ -98,26 +160,93 @@
   <h2>Supplier PO Entry</h2>
 
   <form id="poForm">
-    <input type="date" name="poDate" required />
-    <input type="text" name="supname" placeholder="Supplier Name" required />
-    <input type="text" name="itemNo" placeholder="Item No." required />
-    <input type="text" name="itemName" placeholder="Item Name" required />
-    <input type="number" name="poQty" placeholder="PO Qty" required min="1" />
-    <input type="number" name="pendingQty" placeholder="Pending PO Qty" required min="0" />
-    <input type="text" name="refPONo" placeholder="Ref. PO No." required />
-    <button type="submit">Submit</button>
-  </form>
+  <div class="form-group">
+    <label for="poDate">PO Date</label>
+    <input type="date" name="poDate" id="poDate" required />
+  </div>
+
+  <div class="form-group">
+    <label for="supname">Supplier Name</label>
+    <input type="text" name="supname" id="supname" placeholder="Supplier Name" required />
+  </div>
+
+  <div class="form-group">
+    <label for="itemNo">Item No.</label>
+    <input type="text" name="itemNo" id="itemNo" placeholder="Item No." required />
+  </div>
+
+  <div class="form-group">
+    <label for="itemName">Item Name</label>
+    <input type="text" name="itemName" id="itemName" placeholder="Item Name" required />
+  </div>
+
+  <div class="form-group">
+    <label for="poQty">PO Qty</label>
+    <input type="number" name="poQty" id="poQty" placeholder="PO Qty" required min="1" />
+  </div>
+
+  <div class="form-group">
+    <label for="pendingQty">Pending PO Qty</label>
+    <input type="number" name="pendingQty" id="pendingQty" placeholder="Pending PO Qty" required min="0" />
+  </div>
+
+  <div class="form-group">
+    <label for="refPONo">Ref. PO No.</label>
+    <input type="text" name="refPONo" id="refPONo" placeholder="Ref. PO No." required />
+  </div>
+
+  <div class="form-group">
+    <label for="etaDate">ETA Date</label>
+    <input type="date" name="etaDate" id="etaDate" required />
+  </div>
+
+  <div class="form-group">
+    <label for="partReceivingDate">Part Receiving Date</label>
+    <input type="date" name="partReceivingDate" id="partReceivingDate" required />
+  </div>
+
+  <div class="form-group">
+    <label for="remark">Remark</label>
+    <input type="text" name="remark" id="remark" placeholder="Remark" required />
+  </div>
+
+  <button type="submit">Submit</button>
+</form>
 
   <h3>PO Records</h3>
 
   <div class="controls">
-    <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchTable()">
+  <div class="control-group">
+    <label for="searchInput">Search</label>
+    <input type="text" id="searchInput" placeholder="Enter keyword..." onkeyup="searchTable()">
+  </div>
+
+  <div class="control-group">
+    <label for="startDate">Start Date</label>
     <input type="date" id="startDate">
+  </div>
+
+  <div class="control-group">
+    <label for="endDate">End Date</label>
     <input type="date" id="endDate">
+  </div>
+
+  <div class="control-group">
+    <label>&nbsp;</label>
     <button onclick="filterByDate()">Filter by Date</button>
+  </div>
+
+  <div class="control-group">
+    <label>&nbsp;</label>
     <button onclick="exportToExcel()">Export to Excel</button>
+  </div>
+
+  <div class="control-group">
+    <label>&nbsp;</label>
     <button onclick="exportToPDF()">Export to PDF</button>
   </div>
+</div>
+
 
   <table id="poTable">
     <thead>
@@ -129,6 +258,9 @@
         <th onclick="sortTable(4)">PO Qty</th>
         <th onclick="sortTable(5)">Pending Qty</th>
         <th onclick="sortTable(6)">Ref. PO No.</th>
+        <th onclick="sortTable(7)">ETA Date</th>
+        <th onclick="sortTable(8)">Part Receiving Date</th>
+        <th onclick="sortTable(9)">Remark</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -140,7 +272,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzGCf5gLwpfPcRzvDotLarmWgQpr9DxlpadDi7q5hN-i9mONWmH6k4oSZwFNwAFTIOi/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzp5z6Rqb9Dm-QOZcE6rWT9vw_XGzA2ofnz7pcLFdIWRtrjRyiTNycCGC3u9xIWXkBJpQ/exec';
+
+    // Check if ETA date is overdue
+    function isDateOverdue(dateStr) {
+      const eta = new Date(dateStr);
+      const today = new Date();
+      eta.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      return eta < today;
+    }
 
     document.getElementById('poForm').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -153,7 +294,10 @@
         itemName: form.itemName.value,
         poQty: form.poQty.value,
         pendingQty: form.pendingQty.value,
-        refPONo: form.refPONo.value
+        refPONo: form.refPONo.value,
+        etaDate: form.etaDate.value,
+        partReceivingDate: form.partReceivingDate.value,
+        remark: form.remark.value
       };
 
       try {
@@ -175,6 +319,7 @@
       }
     });
 
+    // Load and display PO data in the table
     async function loadTable() {
       try {
         const res = await fetch(scriptURL);
@@ -192,12 +337,24 @@
             <td>${row.poQty}</td>
             <td>${row.pendingQty}</td>
             <td>${row.refPONo}</td>
+            <td>${row.etaDate}</td>
+            <td>${row.partReceivingDate}</td>
+            <td>${row.remark}</td>
           `;
+
+          // Add status class based on Pending Qty
           if (parseInt(row.pendingQty) > 0) {
             tr.classList.add('pending');
           } else {
             tr.classList.add('fulfilled');
           }
+
+          // Add overdue status based on ETA date
+          if (isDateOverdue(row.etaDate)) {
+            tr.classList.add('overdue');
+            tr.title = "ETA Overdue";
+          }
+
           tbody.appendChild(tr);
         });
       } catch (err) {
@@ -205,6 +362,7 @@
       }
     }
 
+    // Sort the table based on column clicked
     function sortTable(col) {
       const table = document.getElementById("poTable");
       const rows = Array.from(table.rows).slice(1);
@@ -214,6 +372,7 @@
       sorted.forEach(row => table.appendChild(row));
     }
 
+    // Search function for the table
     function searchTable() {
       const val = document.getElementById('searchInput').value.toLowerCase();
       const rows = document.querySelectorAll('#poTable tbody tr');
@@ -224,6 +383,7 @@
       });
     }
 
+    // Filter records by date range
     function filterByDate() {
       const start = new Date(document.getElementById('startDate').value);
       const end = new Date(document.getElementById('endDate').value);
@@ -234,11 +394,13 @@
       });
     }
 
+    // Export table to Excel
     function exportToExcel() {
       const wb = XLSX.utils.table_to_book(document.getElementById('poTable'), { sheet: "PO Data" });
       XLSX.writeFile(wb, "PO_Data.xlsx");
     }
 
+    // Export table to PDF
     function exportToPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -250,6 +412,7 @@
       doc.save("PO_Data.pdf");
     }
 
+    // Load the table when the page is loaded
     loadTable();
   </script>
 
